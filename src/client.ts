@@ -1,7 +1,12 @@
 import * as core from '@actions/core'
-import 'isomorphic-fetch'
-import 'isomorphic-form-data'
 import { Backlog } from 'backlog-js'
+
+function getErrorMessage (error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+  return String(error)
+}
 
 const PR_FIELD_NAME = 'Pull Request'
 const PR_STATUS_FIELD_NAME = 'PR Status'
@@ -90,7 +95,7 @@ export class Client {
     try {
       currentPrField = await this.getCurrentPrField(issueId, prFieldId)
     } catch (error) {
-      core.error(error.message)
+      core.error(getErrorMessage(error))
       core.warning(`Invalid IssueID: ${issueId}`)
       return false
     }
@@ -109,7 +114,7 @@ export class Client {
       })
       return true
     } catch (error) {
-      core.error(error.message)
+      core.error(getErrorMessage(error))
       return false
     }
   }
@@ -124,7 +129,7 @@ export class Client {
     try {
       currentPrStatusField = await this.getCurrentPrField(issueId, prStatusFieldId)
     } catch (error) {
-      core.error(error.message)
+      core.error(getErrorMessage(error))
       core.warning(`Invalid IssueID: ${issueId}`)
       return false
     }
@@ -140,7 +145,7 @@ export class Client {
       })
       return true
     } catch (error) {
-      core.error(error.message)
+      core.error(getErrorMessage(error))
       return false
     }
   }

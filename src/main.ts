@@ -2,6 +2,13 @@ import * as core from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import { Client, CustomField } from './client'
 
+function getErrorMessage (error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+  return String(error)
+}
+
 async function main () {
   try {
     const host = core.getInput('backlog-host', { required: true })
@@ -50,7 +57,7 @@ async function main () {
       core.info(`Trying to link the PR Status to ${backlogUrl}`)
       const octoKit = getOctokit(core.getInput('secret'))
 
-      const pr = await octoKit.pulls.get({
+      const pr = await octoKit.rest.pulls.get({
         ...context.repo,
         pull_number: context.payload.pull_request.number
       })
@@ -71,7 +78,7 @@ async function main () {
       }
     }
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(getErrorMessage(error))
   }
 }
 
