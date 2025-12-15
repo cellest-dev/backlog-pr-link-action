@@ -223,6 +223,15 @@ function getErrorMessage(error) {
     }
     return String(error);
 }
+function getPrStatus(pr) {
+    if (pr.merged) {
+        return 'merged';
+    }
+    if (pr.draft) {
+        return 'draft';
+    }
+    return pr.state;
+}
 async function main() {
     try {
         const host = core.getInput('backlog-host', { required: true });
@@ -267,7 +276,7 @@ async function main() {
                 ...github_1.context.repo,
                 pull_number: github_1.context.payload.pull_request.number
             });
-            const status = pr.data.merged ? 'merged' : pr.data.state;
+            const status = getPrStatus(pr.data);
             let prStatusCustomField = await client.getPrStatusCustomField(projectId);
             if (prStatusCustomField === undefined) {
                 core.info('Create pr custom filed "PR Status"');

@@ -2,11 +2,23 @@ import * as core from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import { Client, CustomField } from './client'
 
+type PrData = { merged: boolean, draft?: boolean, state: string }
+
 function getErrorMessage (error: unknown): string {
   if (error instanceof Error) {
     return error.message
   }
   return String(error)
+}
+
+function getPrStatus (pr: PrData): string {
+  if (pr.merged) {
+    return 'merged'
+  }
+  if (pr.draft) {
+    return 'draft'
+  }
+  return pr.state
 }
 
 async function main () {
@@ -61,7 +73,7 @@ async function main () {
         ...context.repo,
         pull_number: context.payload.pull_request.number
       })
-      const status = pr.data.merged ? 'merged' : pr.data.state
+      const status = getPrStatus(pr.data)
 
       let prStatusCustomField: CustomField | undefined = await client.getPrStatusCustomField(projectId)
       if (prStatusCustomField === undefined) {
